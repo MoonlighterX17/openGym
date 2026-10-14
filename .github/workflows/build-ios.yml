@@ -15,17 +15,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm'
 
-      - name: Build Mobile App & Sync Capacitor
+      - name: Install Frontend Dependencies & Capacitor
         run: |
           cd frontend
           npm ci
-          
-          # Baut das Frontend im Mobile-Modus (nutzt CDN-Medien)
+          npm install @capacitor/cli @capacitor/core @capacitor/ios
+
+      - name: Build Web Assets & Sync Capacitor
+        run: |
+          cd frontend
           npm run build:mobile
-          
-          # Fügt iOS hinzu, falls der Ordner nicht existiert, und synchronisiert
           npx cap add ios || true
           npx cap sync ios
 
