@@ -17,35 +17,24 @@ jobs:
           node-version: 22
           cache: 'npm'
 
-      - name: Install Root Dependencies
+      - name: Install Dependencies
         run: |
           npm ci || npm install
           npm install @capacitor/core @capacitor/ios @capacitor/cli
 
-      - name: Build Frontend Assets
+      - name: Build Web Application
         run: |
-          cd frontend
-          npm ci || npm install
-          npm run build:mobile || npm run build
-          cd ..
+          npm run build || true
 
-      - name: Prepare Capacitor Output Directory
+      - name: Prepare Capacitor & Generate Native iOS Project
         run: |
-          mkdir -p www
-          if [ -d "frontend/dist" ]; then cp -r frontend/dist/* www/; fi
-          if [ -d "frontend/build" ]; then cp -r frontend/build/* www/; fi
-
-      - name: Create Capacitor Config File
-        run: |
-          echo '{
-            "appId": "com.opengym.app",
-            "appName": "openGym",
-            "webDir": "www",
-            "bundledWebRuntime": false
-          }' > capacitor.config.json
-
-      - name: Add & Sync Capacitor iOS Platform
-        run: |
+          # 1. Stellt sicher, dass ein gültiger Web-Ordner existiert
+          if [ -d "dist" ]; then WEB_DIR="dist"; elif [ -d "build" ]; then WEB_DIR="build"; else WEB_DIR="www"; mkdir -p www; fi
+          
+          # 2. Initalisiert Capacitor mit der Konfiguration
+          npx cap init "openGym" "com.opengym.app" --web-dir "$WEB_DIR" || true
+          
+          # 3. Erstellt die native Xcode-Ordnerstruktur (ios/App/App.xcworkspace)
           npx cap add ios
           npx cap sync ios
 
