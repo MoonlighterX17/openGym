@@ -17,12 +17,22 @@ jobs:
           node-version: 22
           cache: 'npm'
 
-      - name: Install Frontend Dependencies & Build Mobile Assets
+      - name: Install Dependencies
+        run: |
+          npm ci
+          npm install @capacitor/core @capacitor/ios @capacitor/cli
+
+      - name: Build Frontend & Capacitor Assets
         run: |
           cd frontend
           npm ci
           npm run build:mobile
           cd ..
+
+      - name: Sync Capacitor iOS
+        run: |
+          npx cap add ios || true
+          npx cap sync ios
 
       - name: Build Xcode App (Unsigned)
         run: |
