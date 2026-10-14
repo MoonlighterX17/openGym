@@ -17,21 +17,36 @@ jobs:
           node-version: 22
           cache: 'npm'
 
-      - name: Install Dependencies
+      - name: Install Root Dependencies
         run: |
-          npm ci
+          npm ci || npm install
           npm install @capacitor/core @capacitor/ios @capacitor/cli
 
-      - name: Build Frontend & Capacitor Assets
+      - name: Build Frontend Assets
         run: |
           cd frontend
-          npm ci
-          npm run build:mobile
+          npm ci || npm install
+          npm run build:mobile || npm run build
           cd ..
 
-      - name: Sync Capacitor iOS
+      - name: Prepare Capacitor Output Directory
         run: |
-          npx cap add ios || true
+          mkdir -p www
+          if [ -d "frontend/dist" ]; then cp -r frontend/dist/* www/; fi
+          if [ -d "frontend/build" ]; then cp -r frontend/build/* www/; fi
+
+      - name: Create Capacitor Config File
+        run: |
+          echo '{
+            "appId": "com.opengym.app",
+            "appName": "openGym",
+            "webDir": "www",
+            "bundledWebRuntime": false
+          }' > capacitor.config.json
+
+      - name: Add & Sync Capacitor iOS Platform
+        run: |
+          npx cap add ios
           npx cap sync ios
 
       - name: Build Xcode App (Unsigned)
