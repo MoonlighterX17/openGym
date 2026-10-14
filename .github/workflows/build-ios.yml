@@ -17,16 +17,12 @@ jobs:
           node-version: 22
           cache: 'npm'
 
-      - name: Install Dependencies
+      - name: Install Frontend Dependencies & Build Mobile Assets
         run: |
+          cd frontend
           npm ci
-          npm install @capacitor/core @capacitor/ios @capacitor/cli
-
-      - name: Initialize Capacitor & Add iOS
-        run: |
-          npx cap init "openGym" "com.opengym.app" --web-dir "dist" || true
-          npx cap add ios || true
-          npx cap sync ios
+          npm run build:mobile
+          cd ..
 
       - name: Build Xcode App (Unsigned)
         run: |
