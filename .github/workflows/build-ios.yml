@@ -18,10 +18,14 @@ jobs:
           cache: 'npm'
 
       - name: Install Dependencies
-        run: npm ci
+        run: |
+          npm ci
+          npm install @capacitor/ios
 
-      - name: Sync Capacitor iOS
-        run: npx --yes @capacitor/cli sync ios
+      - name: Add and Sync Capacitor iOS
+        run: |
+          npx --yes @capacitor/cli add ios || true
+          npx --yes @capacitor/cli sync ios
 
       - name: Build Xcode App (Unsigned)
         run: |
